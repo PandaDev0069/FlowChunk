@@ -13,6 +13,12 @@ from app.core.deps import get_db
 from app.models.user import UserOrm
 from app.schemas.user import TokenData
 
+dotenv_path = os.path.join(os.path.dirname(__file__), "../../.env")
+if os.path.exists(dotenv_path):
+    from dotenv import load_dotenv
+
+    load_dotenv(dotenv_path)
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
