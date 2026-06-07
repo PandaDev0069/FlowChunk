@@ -1,4 +1,4 @@
-from app.main import app, read_root
+from app.app import app, read_root
 
 
 def test_app_metadata_and_root_message() -> None:
