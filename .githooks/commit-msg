@@ -6,9 +6,9 @@ if [ -z "$MSG_FILE" ]; then
   exit 1
 fi
 FIRST_LINE=$(sed -n '1p' "$MSG_FILE" | tr -d '\r')
-# Regex: type(optional-scope): subject (max 100 chars)
+# Regex: type(optional-scope): subject (max 50 chars)
 # Use a safe character class for scope (hyphen placed at the end)
-PATTERN='^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\([A-Za-z0-9._/ -]+\))?: .{1,100}$'
+PATTERN='^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\([A-Za-z0-9._/ -]+\))?: .{1,50}$'
 
 echo "$FIRST_LINE" | grep -Eq "$PATTERN"
 OK=$?
@@ -21,7 +21,7 @@ ERROR: Invalid commit message format.
 
 Commit messages must follow Conventional Commits (single-line subject):
 
-  type(optional-scope): short description (max 100 chars)
+  type(optional-scope): short description (max 50 chars)
 
 Allowed types: feat, fix, docs, style, refactor, perf, test, chore, ci
 Example: feat(api): add user authentication
