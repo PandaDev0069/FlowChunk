@@ -8,3 +8,4 @@ htmlcov/
 .env
 *.pyc
 .requirements.txt
+.vscode/
