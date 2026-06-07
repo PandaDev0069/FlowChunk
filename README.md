@@ -13,6 +13,10 @@ pip install -r requirements.txt
 Run migrations:
 
 ```bash
+alembic revision --autogenerate -m "Initial migration"
+```
+
+```bash
 alembic upgrade head
 ```
 
