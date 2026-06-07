@@ -1,7 +1,7 @@
 from sqlalchemy import UUID, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core.database import Base
+from app.core.database import Base
 
 
 class UserOrm(Base):
