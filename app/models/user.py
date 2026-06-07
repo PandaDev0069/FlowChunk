@@ -1,4 +1,7 @@
-from sqlalchemy import UUID, String
+from uuid import UUID, uuid4
+
+from sqlalchemy import UUID as SQLAlchemyUUID
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -7,7 +10,9 @@ from app.core.database import Base
 class UserOrm(Base):
     __tablename__ = "users"
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(
+        SQLAlchemyUUID(as_uuid=True), primary_key=True, default=uuid4
+    )
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
