@@ -25,11 +25,18 @@ def test_user_orm_generates_uuid_primary_key() -> None:
 
 
 def test_user_response_serializes_uuid_id() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    session = sessionmaker(bind=engine)()
+
     user = UserOrm(
         username="string",
         email="user@example.com",
         hashed_password="hashed-password",
     )
+
+    session.add(user)
+    session.flush()
 
     payload = UserResponse.model_validate(user).model_dump(mode="json")
 
