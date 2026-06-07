@@ -21,3 +21,9 @@ Run tests:
 ```bash
 pytest
 ```
+
+Access DB:
+
+```bash
+docker exec -it flowchunk-db psql -U flowchunk -d flowchunk
+```
