@@ -73,5 +73,13 @@ jobs:
       - name: Run migrations
         run: alembic upgrade head
 
+      - name: Run lint
+        run: |
+          ruff check .
+
+      - name: Check formatting
+        run: |
+          ruff format --check .
+
       - name: Run tests
         run: python -m pytest
