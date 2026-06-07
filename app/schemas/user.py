@@ -34,5 +34,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: Optional[str] = None  # noqa: UP007
+    user_id: Optional[UUID] = None  # noqa: UP007
     email: Optional[EmailStr] = None  # noqa: UP007
