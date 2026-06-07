@@ -22,6 +22,13 @@ Run tests:
 pytest
 ```
 
+Lint and format:
+
+```bash
+ruff check .
+ruff format .
+```
+
 Access DB:
 
 ```bash
