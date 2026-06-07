@@ -1,0 +1,33 @@
+#!/bin/sh
+# commit-msg hook enforcing Conventional Commits-style subjects
+MSG_FILE="$1"
+if [ -z "$MSG_FILE" ]; then
+  echo "No commit message file supplied." >&2
+  exit 1
+fi
+FIRST_LINE=$(sed -n '1p' "$MSG_FILE" | tr -d '\r')
+# Allowed types
+TYPES="feat|fix|docs|style|refactor|perf|test|chore|ci"
+# Regex: type(optional-scope): subject (max 50 chars)
+PATTERN="^($TYPES)(\([a-zA-Z0-9_.\-/ ]+\))?: .{1,50}$"
+
+echo "$FIRST_LINE" | grep -Eq "$PATTERN"
+OK=$?
+if [ $OK -eq 0 ]; then
+  exit 0
+fi
+
+cat <<'EOF'
+ERROR: Invalid commit message format.
+
+Commit messages must follow Conventional Commits (single-line subject):
+
+  type(optional-scope): short description (max 50 chars)
+
+Allowed types: feat, fix, docs, style, refactor, perf, test, chore, ci
+Example: feat(api): add user authentication
+
+To enable hooks run: git config core.hooksPath .githooks
+EOF
+
+exit 1
