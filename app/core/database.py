@@ -1,8 +1,9 @@
 from datetime import UTC, datetime
 
-from app.core.config import settings
 from sqlalchemy import DateTime, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+
+from app.core.config import settings
 
 
 class Base(DeclarativeBase):
