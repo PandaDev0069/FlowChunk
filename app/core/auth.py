@@ -65,7 +65,7 @@ def decode_access_token(token: str) -> TokenData:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token: missing subject",
             )
-        return TokenData(user_id=str(user_id), email=email)
+        return TokenData(user_id=UUIDClass(user_id), email=email)
     except JWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
@@ -87,7 +87,7 @@ def get_current_user(
         )
 
     try:
-        user_uuid = UUIDClass(token_data.user_id)
+        user_uuid = UUIDClass(str(token_data.user_id))
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user id in token"
