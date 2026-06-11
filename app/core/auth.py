@@ -7,6 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_db
@@ -99,10 +100,24 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user id in token"
         ) from err
 
-    user = db.query(UserOrm).filter(UserOrm.id == user_uuid).first()
+    stmt = select(UserOrm).where(
+        UserOrm.id == user_uuid,
+    )
+    user = db.scalars(stmt).one_or_none()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
     return user
+
+
+current_user_dep = Depends(get_current_user)
+
+
+def get_superuser(current_user: UserOrm = current_user_dep) -> UserOrm:
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
+    return current_user
