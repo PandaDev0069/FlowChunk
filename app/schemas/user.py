@@ -23,6 +23,12 @@ class UserResponse(UserBase):
     }
 
 
+class RestoreUserResponse(UserResponse):
+    id: UUID
+    username: str
+    is_deleted: bool
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
