@@ -104,22 +104,6 @@ def get_user_by_id(user_id: UUID, db: DbSessionDep) -> UserOrm:
     return result
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: UUID, db: DbSessionDep) -> None:
-    stmt = select(UserOrm).where(UserOrm.id == user_id, UserOrm.is_superuser == False)  # noqa: E712 # Prevent deleting superusers
-    user = db.scalars(stmt).one_or_none()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-
-    user.is_deleted = True
-    user.deleted_at = datetime.now(tz=UTC)
-    db.add(user)
-    db.commit()
-
-
 @router.patch("/{user_id}", response_model=RestoreUserResponse)
 def restore_user(user_id: UUID, db: DbSessionDep) -> UserOrm:
     stmt = select(UserOrm).where(UserOrm.id == user_id)
@@ -136,3 +120,19 @@ def restore_user(user_id: UUID, db: DbSessionDep) -> UserOrm:
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: UUID, db: DbSessionDep) -> None:
+    stmt = select(UserOrm).where(UserOrm.id == user_id, UserOrm.is_superuser == False)  # noqa: E712 # Prevent deleting superusers
+    user = db.scalars(stmt).one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    user.is_deleted = True
+    user.deleted_at = datetime.now(tz=UTC)
+    db.add(user)
+    db.commit()
