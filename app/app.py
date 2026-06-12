@@ -11,7 +11,7 @@ app.include_router(user.router)
 app.include_router(admin.router)
 
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 def read_root() -> dict[str, str]:
     return {"message": "Welcome to the FlowChunk API!"}
 
