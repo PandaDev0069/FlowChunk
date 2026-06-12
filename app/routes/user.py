@@ -3,7 +3,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.auth import (
@@ -35,18 +35,26 @@ CurrentUserDep = Annotated[UserOrm, Depends(get_current_user)]
 def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
     # Check if username or email already exists
     stmt = select(UserOrm).where(
-        or_(
-            UserOrm.username == user_in.username,
-            UserOrm.email == user_in.email,
-        )
+        UserOrm.username == user_in.username,
     )
-    exitsting_user = db.scalars(stmt).one_or_none()
+    existing_username = db.scalars(stmt).one_or_none()
 
-    if exitsting_user is None:
+    if existing_username is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email or User already Registered",
+            detail="Username already taken",
         )
+
+    stmt = select(UserOrm).where(
+        UserOrm.email == user_in.email,
+    )
+    existing_email = db.scalars(stmt).one_or_none()
+    if existing_email is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered",
+        )
+
     # Create new user
     new_user = UserOrm(
         username=user_in.username,
