@@ -30,7 +30,7 @@ CurrentUserDep = Annotated[UserOrm, Depends(get_current_user)]
 
 
 @router.post(
-    "/", response_model=PrivateUserResponse, status_code=status.HTTP_201_CREATED
+    "/register", response_model=PrivateUserResponse, status_code=status.HTTP_201_CREATED
 )
 def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
     # Check if username or email already exists
@@ -88,7 +88,7 @@ def login(user_in: LoginRequest, db: DbSessionDep) -> Token:
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me", response_model=PrivateUserResponse)
+@router.get("/", response_model=PrivateUserResponse)
 def get_current_user_info(current_user: CurrentUserDep) -> UserOrm:
     return current_user
 
