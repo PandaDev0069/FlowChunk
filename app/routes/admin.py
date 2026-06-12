@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,14 +11,14 @@ from app.services.admin import AdminService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-db_deps = Depends(get_db)
-superuser_deps = Depends(get_superuser)
+DbSessionDep = Annotated[Session, Depends(get_db)]
+SuperuserDep = Annotated[UserOrm, Depends(get_superuser)]
 
 
 @router.delete("/users/cleanup", status_code=204)
 def cleanup_soft_deleted_users(
-    db: Session = db_deps,
-    current_user: UserOrm = superuser_deps,
+    db: DbSessionDep,
+    current_user: SuperuserDep,
 ) -> None:
     AdminService.permanently_delete_soft_deleted_users(db)
 
@@ -25,8 +26,8 @@ def cleanup_soft_deleted_users(
 @router.delete("/users/{user_id}", status_code=204)
 def hard_delete_user(
     user_id: UUID,
-    db: Session = db_deps,
-    current_user: UserOrm = superuser_deps,
+    db: DbSessionDep,
+    current_user: SuperuserDep,
 ) -> None:
     success = AdminService.hard_delete_user(user_id, db)
     if not success:
