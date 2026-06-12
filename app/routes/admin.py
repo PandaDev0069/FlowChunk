@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.auth import get_superuser
-from app.core.db import get_db
+from app.core.database import get_db
 from app.models.user import UserOrm
 from app.services.admin import AdminService
 

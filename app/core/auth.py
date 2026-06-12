@@ -10,7 +10,7 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.db import get_db
+from app.core.database import get_db
 from app.models.user import UserOrm
 from app.schemas.user import TokenData
 
