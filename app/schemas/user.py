@@ -13,7 +13,7 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=128)
 
 
-class UserResponse(UserBase):
+class PrivateUserResponse(UserBase):
     id: UUID
 
     model_config = {
@@ -21,7 +21,16 @@ class UserResponse(UserBase):
     }
 
 
-class RestoreUserResponse(UserResponse):
+class PublicUserResponse(BaseModel):
+    id: UUID
+    username: str
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class RestoreUserResponse(PrivateUserResponse):
     is_deleted: bool = False
 
 

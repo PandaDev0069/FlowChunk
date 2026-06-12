@@ -16,10 +16,11 @@ from app.core.db import get_db
 from app.models.user import UserOrm
 from app.schemas.user import (
     LoginRequest,
+    PrivateUserResponse,
+    PublicUserResponse,
     RestoreUserResponse,
     Token,
     UserCreate,
-    UserResponse,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -28,7 +29,9 @@ DbSessionDep = Annotated[Session, Depends(get_db)]
 CurrentUserDep = Annotated[UserOrm, Depends(get_current_user)]
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=PrivateUserResponse, status_code=status.HTTP_201_CREATED
+)
 def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
     # Check if username or email already exists
     stmt = select(UserOrm).where(
@@ -76,12 +79,12 @@ def login(user_in: LoginRequest, db: DbSessionDep) -> Token:
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=PrivateUserResponse)
 def get_current_user_info(current_user: CurrentUserDep) -> UserOrm:
     return current_user
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=PublicUserResponse)
 def get_user_by_id(user_id: UUID, db: DbSessionDep) -> UserOrm:
     stmt = select(UserOrm).where(UserOrm.id == user_id, UserOrm.is_deleted == False)  # noqa: E712
     result = db.scalars(stmt).one_or_none()
