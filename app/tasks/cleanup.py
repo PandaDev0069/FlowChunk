@@ -1,7 +1,7 @@
 # file: app/tasks/cleanup.py
 from sqlalchemy.orm import Session
 
-from repositories.user_repository import UserRepository
+from app.repositories.user_repository import UserRepository
 
 
 def run_user_cleanup(db: Session):
