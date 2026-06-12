@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.core.db import get_db
+from app.core.database import get_db
 from app.repositories.user_repository import UserRepository
 
 db_deps = Depends(get_db)
