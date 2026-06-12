@@ -49,6 +49,7 @@ def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
         UserOrm.email == user_in.email,
     )
     existing_email = db.scalars(stmt).one_or_none()
+
     if existing_email is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
