@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
@@ -45,5 +44,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: Optional[UUID] = None  # noqa: UP007
-    email: Optional[EmailStr] = None  # noqa: UP007
+    user_id: UUID | None = None
+    email: EmailStr | None = None

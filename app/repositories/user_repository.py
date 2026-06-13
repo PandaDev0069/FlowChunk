@@ -11,7 +11,6 @@ from app.models.user import UserOrm
 class UserRepository:
     @staticmethod
     def permanently_delete_soft_deleted_users(db: Session) -> int:
-        # Fixed typo: cuttoff_date -> cutoff_date
         cutoff_date = datetime.now(UTC) - timedelta(days=30)
 
         stmt = delete(UserOrm).where(
