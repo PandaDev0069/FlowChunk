@@ -4,8 +4,8 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    username: str = Field(..., max_length=50)
-    email: EmailStr = Field(..., max_length=255)
+    username: str = Field(min_length=3, max_length=50)
+    email: EmailStr = Field(min_length=3, max_length=255)
 
 
 class UserCreate(UserBase):
@@ -27,6 +27,19 @@ class PublicUserResponse(BaseModel):
     model_config = {
         "from_attributes": True,
     }
+
+
+class UpdateUserRequest(BaseModel):
+    username: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=50,
+    )
+    email: EmailStr | None = Field(
+        default=None,
+        min_length=3,
+        max_length=255,
+    )
 
 
 class RestoreUserResponse(PrivateUserResponse):
