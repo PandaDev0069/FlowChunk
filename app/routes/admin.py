@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import get_superuser
 from app.core.database import get_db
 from app.models.user import UserOrm
-from app.services.admin import AdminService
+from app.services.admin_service import AdminService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

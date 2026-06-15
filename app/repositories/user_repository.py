@@ -14,7 +14,7 @@ class UserRepository:
         cutoff_date = datetime.now(UTC) - timedelta(days=30)
 
         stmt = delete(UserOrm).where(
-            UserOrm.is_deleted == True,  # noqa: E712
+            UserOrm.is_deleted.is_(True),
             UserOrm.deleted_at <= cutoff_date,
         )
 
