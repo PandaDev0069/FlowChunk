@@ -113,7 +113,16 @@ def delete_user_by_id(user_id: UUID, db: Session) -> None:
 
 
 def restore_user_by_id(user_id: UUID, db: Session) -> UserOrm:
-    user = get_user_or_404(user_id, db)
+    stmt = select(UserOrm).where(
+        UserOrm.id == user_id,
+        UserOrm.is_deleted.is_(True),
+    )
+    user = db.scalars(stmt).one_or_none()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found or not deleted",
+        )
     user.is_deleted = False
     user.deleted_at = None
     db.commit()
