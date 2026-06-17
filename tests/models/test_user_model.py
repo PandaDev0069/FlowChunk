@@ -1,8 +1,4 @@
-from tests.confest import db_session
-
 from app.models.user import UserOrm
-
-db_session = db_session
 
 
 def test_create_user_model():
