@@ -23,6 +23,7 @@ from app.schemas.user import (
 )
 from app.services.user_service import (
     delete_user_by_id,
+    get_user_or_404,
     register_user,
     restore_user_by_id,
     update_user_by_id,
@@ -73,13 +74,8 @@ def get_current_user_info(current_user: CurrentUserDep) -> UserOrm:
 
 @router.get("/{user_id}", response_model=PublicUserResponse)
 def get_user_by_id(user_id: UUID, db: DbSessionDep) -> UserOrm:
-    stmt = select(UserOrm).where(UserOrm.id == user_id, UserOrm.is_deleted.is_(False))
-    result = db.scalars(stmt).one_or_none()
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-    return result
+    restult = get_user_or_404(user_id=user_id, db=db)
+    return restult
 
 
 @router.patch("/{user_id}", response_model=PrivateUserResponse)
