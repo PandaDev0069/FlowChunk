@@ -6,8 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.app import app
-from app.core.database import Base
-from app.core.deps import get_db
+from app.core.database import Base, get_db
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
