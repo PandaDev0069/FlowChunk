@@ -1,21 +1,27 @@
-from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    username: str
-    email: EmailStr
+    username: str = Field(min_length=3, max_length=50)
+    email: EmailStr = Field(min_length=3, max_length=255)
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(..., min_length=8, max_length=128)
 
 
-class UserResponse(UserBase):
+class PrivateUserResponse(UserBase):
     id: UUID
-    email: EmailStr
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class PublicUserResponse(BaseModel):
+    id: UUID
     username: str
 
     model_config = {
@@ -23,9 +29,26 @@ class UserResponse(UserBase):
     }
 
 
+class UpdateUserRequest(BaseModel):
+    username: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=50,
+    )
+    email: EmailStr | None = Field(
+        default=None,
+        min_length=3,
+        max_length=255,
+    )
+
+
+class RestoreUserResponse(PrivateUserResponse):
+    is_deleted: bool = False
+
+
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(..., max_length=255)
+    password: str = Field(..., min_length=8, max_length=128)
 
 
 class Token(BaseModel):
@@ -34,5 +57,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: Optional[UUID] = None  # noqa: UP007
-    email: Optional[EmailStr] = None  # noqa: UP007
+    user_id: UUID | None = None
+    email: EmailStr | None = None
