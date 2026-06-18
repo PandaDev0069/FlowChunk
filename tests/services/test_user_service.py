@@ -4,7 +4,7 @@ import pytest
 from fastapi import HTTPException, status
 
 from app.models.user import UserOrm
-from app.schemas.user import UserCreate
+from app.schemas.user import UpdateUserRequest, UserCreate
 from app.services import user_service
 
 
@@ -89,3 +89,101 @@ def test_get_user_or_404_deleted_user(db_session, test_user):
         user_service.get_user_or_404(user_id=test_user.id, db=db_session)
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "User not found"
+
+
+def test_update_user_success(db_session, test_user):
+    update_data = UpdateUserRequest(
+        username="updateduser",
+        email="update@example.com",
+    )
+    updated_user = user_service.update_user_by_id(
+        user_id=test_user.id, db=db_session, user_update=update_data
+    )
+    assert updated_user.username == "updateduser"
+    assert updated_user.email == "update@example.com"
+
+
+def test_update_user_duplicate_username(db_session, test_user):
+    existing_user = UserCreate(
+        username="existinguser",
+        email="existing@example.com",
+        password="securepassword",
+    )
+    user_service.register_user(existing_user, db_session)
+    update_data = UpdateUserRequest(
+        username="existinguser",
+        email="update@example.com",
+    )
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.update_user_by_id(
+            user_id=test_user.id, db=db_session, user_update=update_data
+        )
+    assert exc_info.value.status_code == status.HTTP_409_CONFLICT
+    assert exc_info.value.detail == "Username already taken"
+
+
+def test_update_user_duplicate_email(db_session, test_user):
+    existing_user = UserCreate(
+        username="existinguser",
+        email="existing@example.com",
+        password="securepassword",
+    )
+    user_service.register_user(existing_user, db_session)
+    update_data = UpdateUserRequest(
+        username="updateduser",
+        email="existing@example.com",
+    )
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.update_user_by_id(
+            user_id=test_user.id, db=db_session, user_update=update_data
+        )
+    assert exc_info.value.status_code == status.HTTP_409_CONFLICT
+    assert exc_info.value.detail == "Email already registered"
+
+
+def test_delete_user_by_id_success(db_session, test_user):
+    user_service.delete_user_by_id(user_id=test_user.id, db=db_session)
+    deleted_user = db_session.get(UserOrm, test_user.id)
+    assert deleted_user.is_deleted is True
+
+
+def test_delete_user_by_id_not_found(db_session):
+    nil_uuid = UUID("00000000-0000-0000-0000-000000000000")
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.delete_user_by_id(user_id=nil_uuid, db=db_session)
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "User not found"
+
+
+def test_delete_user_by_id_already_deleted(db_session, test_user):
+    test_user.is_deleted = True
+    db_session.commit()
+
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.delete_user_by_id(user_id=test_user.id, db=db_session)
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "User not found"
+
+
+def test_restore_user_by_id_success(db_session, test_user):
+    test_user.is_deleted = True
+    db_session.commit()
+
+    user_service.restore_user_by_id(user_id=test_user.id, db=db_session)
+    restored_user = db_session.get(UserOrm, test_user.id)
+    assert restored_user.is_deleted is False
+
+
+def test_restore_user_by_id_not_found(db_session):
+    nil_uuid = UUID("00000000-0000-0000-0000-000000000000")
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.restore_user_by_id(user_id=nil_uuid, db=db_session)
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "User not found or already deleted"
+
+
+def test_restore_user_by_id_not_deleted(db_session, test_user):
+    with pytest.raises(HTTPException) as exc_info:
+        user_service.restore_user_by_id(user_id=test_user.id, db=db_session)
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "User not found or already deleted"
