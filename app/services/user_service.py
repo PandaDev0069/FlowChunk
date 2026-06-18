@@ -121,7 +121,7 @@ def restore_user_by_id(user_id: UUID, db: Session) -> UserOrm:
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found or not deleted",
+            detail="User not found or already deleted",
         )
     user.is_deleted = False
     user.deleted_at = None
