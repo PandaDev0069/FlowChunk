@@ -4,9 +4,12 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from tests.factories.user_factory import create_user
 
 from app.app import app
+from app.core.auth import get_current_user
 from app.core.database import Base, get_db
+from app.models.user import UserOrm
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
@@ -56,3 +59,26 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
         yield c
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def authenticated_user(db_session) -> UserOrm:
+    return create_user(db_session)
+
+
+@pytest.fixture()
+def authorized_client(
+    client: TestClient,
+    authenticated_user,
+):
+    def override_current_user():
+        return authenticated_user
+
+    app.dependency_overrides[get_current_user] = override_current_user
+
+    yield client
+
+    app.dependency_overrides.pop(
+        get_current_user,
+        None,
+    )
