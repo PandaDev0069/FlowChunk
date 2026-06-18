@@ -5,7 +5,7 @@ from app.core.database import SessionLocal
 from app.routes import admin, user
 from app.tasks.cleanup import run_user_cleanup
 
-app = FastAPI(title="FlowChunk API", version="1.0.0")
+app = FastAPI(title="FlowChunk API", version="0.0.1")
 
 app.include_router(user.router)
 app.include_router(admin.router)
