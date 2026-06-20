@@ -86,7 +86,7 @@ def test_login_deleted_user(
     assert response.status_code == 401
 
 
-def test_get_current_user(
+def test_get_current_user_success(
     authorized_client,
     authenticated_user,
 ):
@@ -101,7 +101,22 @@ def test_get_current_user(
     assert data["email"] == authenticated_user.email
 
 
-def test_get_user_by_id(
+def test_get_current_user_deleted_user(
+    authorized_client,
+    authenticated_user,
+    db_session,
+):
+    authenticated_user.is_deleted = True
+    db_session.commit()
+
+    response = authorized_client.get("/users")
+
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "User not found"
+
+
+def test_get_user_by_id_success(
     client,
     db_session,
 ):
