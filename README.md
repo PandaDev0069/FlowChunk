@@ -13,11 +13,28 @@ pip install -r requirements.txt
 Run migrations:
 
 ```bash
+alembic revision --autogenerate -m "Initial migration"
+```
+
+```bash
 alembic upgrade head
 ```
 
 Run tests:
 
 ```bash
-pytest
+python -m pytest
+```
+
+Lint and format:
+
+```bash
+ruff check .
+ruff format .
+```
+
+Access DB:
+
+```bash
+docker exec -it flowchunk-db psql -U flowchunk -d flowchunk
 ```
