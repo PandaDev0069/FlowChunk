@@ -1,6 +1,5 @@
 import os
 from datetime import UTC, datetime, timedelta
-from typing import Optional
 from uuid import UUID as UUIDClass
 
 from fastapi import Depends, HTTPException, status
@@ -15,7 +14,7 @@ from app.models.user import UserOrm
 from app.schemas.user import TokenData
 
 dotenv_path = os.path.join(os.path.dirname(__file__), "../../.env")
-if os.path.exists(dotenv_path):
+if os.path.exists(dotenv_path):  # pragma: no cover
     from dotenv import load_dotenv
 
     load_dotenv(dotenv_path)
@@ -47,7 +46,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # --- JWT token handling ---
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:  # noqa: UP007
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     if not SECRET_KEY:
         raise RuntimeError("SECRET_KEY is not set in environment")
 

@@ -49,13 +49,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest-cov
 
       - name: Wait for Postgres
         run: |
           python - <<'PY'
           import os
           import time
-
           import psycopg2
 
           dsn = os.environ["DATABASE_URL"]
@@ -74,12 +74,27 @@ jobs:
         run: alembic upgrade head
 
       - name: Run lint
-        run: |
-          ruff check .
+        run: ruff check .
 
       - name: Check formatting
-        run: |
-          ruff format --check .
+        run: ruff format --check .
 
-      - name: Run tests
-        run: python -m pytest
+      - name: Run tests with coverage
+        env:
+          SECRET_KEY: "temporary-super-secret-key-for-testing-purposes"
+        run: |
+          # Use both . and app to ensure the coverage tracker hooks into the files
+          pytest \
+            --cov=. \
+            --cov-report=xml:coverage.xml \
+            --junitxml=pytest.xml
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: MishaKav/pytest-coverage-comment@v1.1.51
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Switch the inputs to target the generated XML report file directly
+          pytest-xml-coverage-path: ./coverage.xml
+          junitxml-path: ./pytest.xml
+          title: "📊 Coverage Report"

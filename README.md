@@ -23,7 +23,7 @@ alembic upgrade head
 Run tests:
 
 ```bash
-pytest
+python -m pytest
 ```
 
 Lint and format:
