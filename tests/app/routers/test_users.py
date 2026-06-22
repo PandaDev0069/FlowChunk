@@ -21,7 +21,7 @@ def test_register_user(client):
     assert "id" in data
 
 
-@patch("app.routes.user.create_access_token")
+@patch("app.routers.user.create_access_token")
 def test_login_success(
     mock_create_token,
     client,
