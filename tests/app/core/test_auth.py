@@ -1,6 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi import HTTPException
@@ -10,6 +10,7 @@ from app.core.auth import (
     create_access_token,
     decode_access_token,
     get_current_user,
+    get_superuser,
     hash_password,
     verify_password,
 )
@@ -55,7 +56,9 @@ def test_create_and_decode_access_token():
 
 def test_create_access_token_with_custom_expiration():
     token = create_access_token(
-        {"sub": str(uuid4())},
+        {
+            "sub": str(uuid4()),
+        },
         expires_delta=timedelta(minutes=1),
     )
 
@@ -101,9 +104,17 @@ def test_decode_token_missing_subject():
 def test_get_current_user_success(db_session):
     user = create_user(db_session)
 
-    token = create_access_token({"sub": str(user.id), "email": user.email})
+    token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email,
+        }
+    )
 
-    current_user = get_current_user(token, db_session)
+    current_user = get_current_user(
+        token,
+        db_session,
+    )
 
     assert current_user.id == user.id
     assert current_user.email == user.email
@@ -133,7 +144,10 @@ def test_get_current_user_invalid_token_data(
     mock_decode,
     db_session,
 ):
-    mock_decode.return_value = TokenData(user_id=None, email=None)
+    mock_decode.return_value = TokenData(
+        user_id=None,
+        email=None,
+    )
 
     with pytest.raises(HTTPException) as exc:
         get_current_user(
@@ -143,3 +157,65 @@ def test_get_current_user_invalid_token_data(
 
     assert exc.value.status_code == 401
     assert exc.value.detail == "Invalid token data"
+
+
+@patch("app.core.auth.decode_access_token")
+def test_get_current_user_invalid_user_id(
+    mock_decode,
+    db_session,
+):
+    token = TokenData(
+        user_id=UUID("00000000-0000-0000-0000-000000000000"),
+        email="test@example.com",
+    )
+    with pytest.raises(HTTPException) as exc:
+        get_current_user(
+            str(token),
+            db_session,
+        )
+
+    assert exc.value.status_code == 401
+    assert exc.value.detail == "Invalid user id in token"
+
+
+def test_get_superuser_success(db_session):
+    user = create_user(db_session, is_superuser=True)
+
+    token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email,
+        }
+    )
+
+    current_user = get_current_user(
+        token,
+        db_session,
+    )
+
+    superuser = get_superuser(current_user)
+
+    assert superuser.id == user.id
+    assert superuser.is_superuser is True
+
+
+def test_get_superuser_forbidden(db_session):
+    user = create_user(db_session, is_superuser=False)
+
+    token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email,
+        }
+    )
+
+    current_user = get_current_user(
+        token,
+        db_session,
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        get_superuser(current_user)
+
+    assert exc.value.status_code == 403
+    assert exc.value.detail == "Insufficient permissions"
