@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from tests.app.factories.user_factory import create_user
 
 from app.app import app
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, get_superuser
 from app.core.database import Base, get_db
 from app.models.user import UserOrm
 
@@ -82,3 +82,20 @@ def authorized_client(
         get_current_user,
         None,
     )
+
+
+@pytest.fixture()
+def superuser(db_session) -> UserOrm:
+    return create_user(db_session, is_superuser=True)
+
+
+@pytest.fixture()
+def admin_client(client, superuser):
+    def override():
+        return superuser
+
+    app.dependency_overrides[get_superuser] = override
+
+    yield client
+
+    app.dependency_overrides.pop(get_superuser, None)
