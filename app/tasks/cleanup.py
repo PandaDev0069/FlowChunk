@@ -1,4 +1,3 @@
-# file: app/tasks/cleanup.py
 from sqlalchemy.orm import Session
 
 from app.repositories.user_repository import UserRepository
