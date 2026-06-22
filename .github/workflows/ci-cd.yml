@@ -86,6 +86,7 @@ jobs:
           pytest \
             --cov=app \
             --cov-report=term-missing \
+            --cov-report=xml \
             --junitxml=pytest.xml \
             | tee pytest-coverage.txt
 
