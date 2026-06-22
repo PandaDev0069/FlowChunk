@@ -38,3 +38,16 @@ Access DB:
 ```bash
 docker exec -it flowchunk-db psql -U flowchunk -d flowchunk
 ```
+
+Generate pytest coverage report:
+
+```bash
+python -m pytest --cov=app --cov-report=html
+
+```
+
+Check coverage report:
+
+```bash
+python -m coverage html
+```
