@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from tests.factories.user_factory import create_user
+from tests.app.factories.user_factory import create_user
 
 from app.app import app
 from app.core.auth import get_current_user

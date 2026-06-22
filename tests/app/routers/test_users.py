@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from tests.factories.user_factory import create_user
+from tests.app.factories.user_factory import create_user
 
 
 def test_register_user(client):
