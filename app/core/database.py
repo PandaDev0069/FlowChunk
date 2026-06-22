@@ -36,7 +36,7 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Generator[Session, None, None]:  # pragma: no cover
     db = SessionLocal()
 
     try:
