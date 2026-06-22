@@ -83,17 +83,18 @@ jobs:
         env:
           SECRET_KEY: "temporary-super-secret-key-for-testing-purposes"
         run: |
+          # Use both . and app to ensure the coverage tracker hooks into the files
           pytest \
-            --cov=app \
-            --cov-report=term-missing \
-            --cov-report=xml \
-            --junitxml=pytest.xml \
-            | tee pytest-coverage.txt
+            --cov=. \
+            --cov-report=xml:coverage.xml \
+            --junitxml=pytest.xml
 
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
         uses: MishaKav/pytest-coverage-comment@v1.1.51
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          pytest-coverage-path: ./pytest-coverage.txt
+          # Switch the inputs to target the generated XML report file directly
+          pytest-xml-coverage-path: ./coverage.xml
           junitxml-path: ./pytest.xml
+          title: "📊 Coverage Report"
