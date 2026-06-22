@@ -85,25 +85,14 @@ jobs:
         run: |
           pytest \
             --cov=app \
-            --cov-report=term \
-            --cov-report=xml \
-            --cov-report=html \
+            --cov-report=term-missing \
+            --junitxml=pytest.xml \
             | tee pytest-coverage.txt
-
-      - name: Create coverage summary
-        if: github.event_name == 'pull_request'
-        run: |
-          {
-            echo "## Test Coverage"
-            echo ""
-            echo '```'
-            grep -A100 "---------- coverage:" pytest-coverage.txt || cat pytest-coverage.txt
-            echo '```'
-          } > coverage-comment.md
 
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: MishaKav/pytest-coverage-comment@v1.1.51
         with:
-          path: coverage-comment.md
-          header: "Test Coverage"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
