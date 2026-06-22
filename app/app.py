@@ -2,7 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 
 from app.core.database import SessionLocal
-from app.routes import admin, user
+from app.routers import admin, user
 from app.tasks.cleanup import run_user_cleanup
 
 app = FastAPI(title="FlowChunk API", version="0.0.1")
