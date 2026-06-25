@@ -1,3 +1,7 @@
+import os
+
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-pytest")
+
 from collections.abc import Generator
 
 import pytest

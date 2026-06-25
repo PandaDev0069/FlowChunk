@@ -1,6 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
@@ -164,15 +164,14 @@ def test_get_current_user_invalid_user_id(
     mock_decode,
     db_session,
 ):
-    token = TokenData(
-        user_id=UUID("00000000-0000-0000-0000-000000000000"),
-        email="test@example.com",
-    )
+    class FakeTokenData:
+        user_id = "not-a-valid-uuid"
+        email = "test@example.com"
+
+    mock_decode.return_value = FakeTokenData()
+
     with pytest.raises(HTTPException) as exc:
-        get_current_user(
-            str(token),
-            db_session,
-        )
+        get_current_user("token", db_session)
 
     assert exc.value.status_code == 401
     assert exc.value.detail == "Invalid user id in token"
@@ -219,3 +218,16 @@ def test_get_superuser_forbidden(db_session):
 
     assert exc.value.status_code == 403
     assert exc.value.detail == "Insufficient permissions"
+
+
+@patch("dotenv.load_dotenv")
+@patch("os.path.exists", return_value=True)
+def test_loads_dotenv_when_env_file_present(mock_exists, mock_load):
+    import importlib
+
+    import app.core.auth as auth_module
+
+    importlib.reload(auth_module)
+
+    mock_exists.assert_called()
+    mock_load.assert_called_once_with(auth_module.dotenv_path)

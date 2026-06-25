@@ -14,7 +14,7 @@ from app.models.user import UserOrm
 from app.schemas.user import TokenData
 
 dotenv_path = os.path.join(os.path.dirname(__file__), "../../.env")
-if os.path.exists(dotenv_path):  # pragma: no cover
+if os.path.exists(dotenv_path):
     from dotenv import load_dotenv
 
     load_dotenv(dotenv_path)

@@ -122,6 +122,45 @@ def test_update_user_duplicate_username(db_session, test_user):
     assert exc_info.value.detail == "Username already taken"
 
 
+def test_update_user_username_only(db_session, test_user):
+    update_data = UpdateUserRequest(username="newusername")
+    updated_user = user_service.update_user_by_id(
+        user_id=test_user.id, db=db_session, user_update=update_data
+    )
+    assert updated_user.username == "newusername"
+    assert updated_user.email == test_user.email
+
+
+def test_update_user_email_only(db_session, test_user):
+    update_data = UpdateUserRequest(email="newemail@example.com")
+    updated_user = user_service.update_user_by_id(
+        user_id=test_user.id, db=db_session, user_update=update_data
+    )
+    assert updated_user.email == "newemail@example.com"
+    assert updated_user.username == test_user.username
+
+
+def test_update_user_no_changes(db_session, test_user):
+    update_data = UpdateUserRequest()
+    updated_user = user_service.update_user_by_id(
+        user_id=test_user.id, db=db_session, user_update=update_data
+    )
+    assert updated_user.username == test_user.username
+    assert updated_user.email == test_user.email
+
+
+def test_update_user_same_values(db_session, test_user):
+    update_data = UpdateUserRequest(
+        username=test_user.username,
+        email=test_user.email,
+    )
+    updated_user = user_service.update_user_by_id(
+        user_id=test_user.id, db=db_session, user_update=update_data
+    )
+    assert updated_user.username == test_user.username
+    assert updated_user.email == test_user.email
+
+
 def test_update_user_duplicate_email(db_session, test_user):
     existing_user = UserCreate(
         username="existinguser",
