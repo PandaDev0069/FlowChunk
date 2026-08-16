@@ -3,7 +3,8 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 from sqlalchemy import UUID as SQLAlchemyUUID
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, text
+from sqlalchemy import DateTime, ForeignKey, Index, text
+from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -30,7 +31,7 @@ class SessionOrm(Base):
         DateTime(timezone=True), nullable=False
     )
     session_type: Mapped[SessionType] = mapped_column(
-        String(50),
+        SQLAlchemyEnum(SessionType, native_enum=False, length=20),
         default=SessionType.FOCUS,
         server_default=text("'focus'"),
         nullable=False,
@@ -38,8 +39,8 @@ class SessionOrm(Base):
     ended_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    planned_duration: Mapped[int] = mapped_column(Integer, nullable=False)
-    actual_duration: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    planned_duration: Mapped[int] = mapped_column(nullable=False)
+    actual_duration: Mapped[int | None] = mapped_column(nullable=True)
     completed: Mapped[bool] = mapped_column(default=False, server_default=text("false"))
 
     __table_args__ = (
