@@ -1,7 +1,8 @@
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import UUID as SQLAlchemyUUID
-from sqlalchemy import ForeignKey, text
+from sqlalchemy import DateTime, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -34,4 +35,10 @@ class PomodoroSettingsOrm(Base):
     )
     auto_start_break: Mapped[bool] = mapped_column(
         default=False, server_default=text("false")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
     )
