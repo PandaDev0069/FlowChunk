@@ -42,12 +42,6 @@ class SessionOrm(Base):
     planned_duration: Mapped[int] = mapped_column(nullable=False)
     actual_duration: Mapped[int | None] = mapped_column(nullable=True)
     completed: Mapped[bool] = mapped_column(default=False, server_default=text("false"))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
 
     __table_args__ = (
         Index("ix_focus_sessions_user_id_started_at", "user_id", "started_at"),
