@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -18,6 +19,7 @@ def get_session(
     )
     return db.execute(stmt).scalars().first()
 
+
 def get_active_session(
     db: Session,
     user_id: UUID,
@@ -36,7 +38,11 @@ def create_session(
     user_id: UUID,
     session: SessionCreate,
 ) -> SessionOrm:
-    db_session = SessionOrm(user_id=user_id, **session.model_dump())
+    db_session = SessionOrm(
+        user_id=user_id,
+        started_at=datetime.now(UTC),
+        **session.model_dump(),
+    )
 
     db.add(db_session)
     db.commit()
