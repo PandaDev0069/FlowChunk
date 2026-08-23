@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import SessionLocal
-from app.routers import admin, user
+from app.routers import admin, pomodoro_session, pomodoro_settings, user
 from app.tasks.cleanup import run_user_cleanup
 
 app = FastAPI(title="FlowChunk API", version="0.0.1")
@@ -18,6 +18,8 @@ app.add_middleware(
 
 app.include_router(user.router)
 app.include_router(admin.router)
+app.include_router(pomodoro_session.router)
+app.include_router(pomodoro_settings.router)
 
 
 @app.get("/", tags=["Root"])
