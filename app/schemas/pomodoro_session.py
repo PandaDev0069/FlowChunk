@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.session import SessionType
+from app.models.pomodoro_session import SessionType
 
 
 class SessionCreate(BaseModel):
@@ -29,3 +29,12 @@ class SessionResponse(BaseModel):
     planned_duration: int
     actual_duration: int | None
     completed: bool
+
+class ActiveSessionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    user_id: UUID
+    started_at: datetime
+    session_type: SessionType
+    planned_duration: int

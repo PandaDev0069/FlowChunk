@@ -1,0 +1,93 @@
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.core.auth import get_current_user
+from app.core.database import get_db
+from app.models.pomodoro_session import SessionOrm
+from app.models.user import UserOrm
+from app.schemas.pomodoro_session import (
+    SessionCreate,
+    SessionResponse,
+    SessionUpdate,
+)
+from app.services.pomodoro_session_service import (
+    create_session,
+    get_active_session,
+    get_session,
+    update_session,
+)
+
+router = APIRouter(prefix="/pomodoro/sessions", tags=["Pomodoro_sessions"])
+
+DbSessionDep = Annotated[Session, Depends(get_db)]
+CurrentUserDep = Annotated[UserOrm, Depends(get_current_user)]
+
+
+@router.get(
+    "/{session_id}",
+    response_model=SessionResponse,
+    status_code=status.HTTP_200_OK,
+)
+def get_pomodoro_session(
+    db: DbSessionDep,
+    current_user: CurrentUserDep,
+    session_id: UUID,
+) -> SessionOrm:
+    session = get_session(db, current_user.id, session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pomodoro session not found",
+        )
+    return session
+
+
+@router.get(
+    "/{session_id}/active",
+    response_model=SessionResponse,
+    status_code=status.HTTP_200_OK,
+)
+def get_active_pomodoro_session(
+    db: DbSessionDep,
+    current_user: CurrentUserDep,
+    session_id: UUID,
+) -> SessionOrm:
+    session = get_active_session(db, current_user.id, session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Active Pomodoro session not found",
+        )
+    return session
+
+
+@router.post("/", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
+def create_pomodoro_session(
+    db: DbSessionDep,
+    current_user: CurrentUserDep,
+    session_data: SessionCreate,
+) -> SessionOrm:
+    return create_session(db, current_user.id, session_data)
+
+
+@router.patch(
+    "/{session_id}",
+    response_model=SessionResponse,
+    status_code=status.HTTP_200_OK,
+)
+def update_pomodoro_session(
+    db: DbSessionDep,
+    current_user: CurrentUserDep,
+    session_id: UUID,
+    session_data: SessionUpdate,
+) -> SessionOrm:
+    session = get_session(db, current_user.id, session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pomodoro session not found",
+        )
+    return update_session(db, session, session_data)
