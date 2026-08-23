@@ -8,7 +8,7 @@ from app.models.pomodoro_session import SessionType
 
 class SessionCreate(BaseModel):
     session_type: SessionType = SessionType.FOCUS
-    planned_duration: int = Field(gt=0, le=180)
+    planned_duration: int = Field(gt=0, le=10800)
 
 
 class SessionUpdate(BaseModel):

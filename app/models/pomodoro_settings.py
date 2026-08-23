@@ -19,12 +19,14 @@ class PomodoroSettingsOrm(Base):
         unique=True,
         nullable=False,
     )
-    focus_duration: Mapped[int] = mapped_column(default=25, server_default=text("25"))
+    focus_duration: Mapped[int] = mapped_column(
+        default=1500, server_default=text("1500")
+    )
     short_break_duration: Mapped[int] = mapped_column(
-        default=5, server_default=text("5")
+        default=300, server_default=text("300")
     )
     long_break_duration: Mapped[int] = mapped_column(
-        default=15, server_default=text("15")
+        default=900, server_default=text("900")
     )
     sessions_before_long_break: Mapped[int] = mapped_column(
         default=4, server_default=text("4")
