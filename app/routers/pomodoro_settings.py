@@ -5,13 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
 from app.core.database import get_db
-from app.models.pomodoro import PomodoroSettingsOrm
+from app.models.pomodoro_settings import PomodoroSettingsOrm
 from app.models.user import UserOrm
-from app.schemas.pomodoro import (
+from app.schemas.pomodoro_settings import (
     PomodoroSettingsResponse,
     PomodoroSettingsUpdate,
 )
-from app.services.pomodoro_service import (
+from app.services.pomodoro_settings_service import (
     get_settings,
     update_settings,
 )

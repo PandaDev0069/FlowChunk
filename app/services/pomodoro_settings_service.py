@@ -3,8 +3,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.pomodoro import PomodoroSettingsOrm
-from app.schemas.pomodoro import (
+from app.models.pomodoro_settings import PomodoroSettingsOrm
+from app.schemas.pomodoro_settings import (
     PomodoroSettingsCreate,
     PomodoroSettingsUpdate,
 )
