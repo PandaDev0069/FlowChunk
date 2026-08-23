@@ -12,9 +12,7 @@ class SessionCreate(BaseModel):
 
 
 class SessionUpdate(BaseModel):
-    ended_at: datetime | None = None
-    actual_duration: int | None = Field(None, gt=0, le=180)
-    completed: bool | None = None
+    completed: bool
 
 
 class SessionResponse(BaseModel):
@@ -28,6 +26,7 @@ class SessionResponse(BaseModel):
     planned_duration: int
     actual_duration: int | None
     completed: bool
+
 
 class ActiveSessionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

@@ -14,10 +14,10 @@ from app.schemas.pomodoro_session import (
     SessionUpdate,
 )
 from app.services.pomodoro_session_service import (
+    complete_session,
     create_session,
     get_active_session,
     get_session,
-    update_session,
 )
 
 router = APIRouter(prefix="/pomodoro/sessions", tags=["Pomodoro_sessions"])
@@ -78,16 +78,26 @@ def create_pomodoro_session(
     response_model=SessionResponse,
     status_code=status.HTTP_200_OK,
 )
-def update_pomodoro_session(
+def complete_pomodoro_session(
     db: DbSessionDep,
     current_user: CurrentUserDep,
     session_id: UUID,
-    session_data: SessionUpdate,
+    session: SessionUpdate,
 ) -> SessionOrm:
-    session = get_session(db, current_user.id, session_id)
-    if session is None:
+    db_session = get_session(db, current_user.id, session_id)
+    if db_session is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Pomodoro session not found",
         )
-    return update_session(db, session, session_data)
+    if db_session.ended_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Pomodoro session has already ended",
+        )
+
+    return complete_session(
+        db=db,
+        db_session=db_session,
+        completed=session.completed,
+    )

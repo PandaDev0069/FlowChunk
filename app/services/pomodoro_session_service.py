@@ -64,3 +64,19 @@ def update_session(
     db.refresh(db_session)
 
     return db_session
+
+def complete_session(
+    db: Session,
+    db_session: SessionOrm,
+    completed: bool,
+) -> SessionOrm:
+    ended_at = datetime.now(UTC)
+    
+    db_session.ended_at = ended_at
+    db_session.actual_duration = int((ended_at - db_session.started_at).total_seconds())
+    db_session.completed = completed
+
+    db.commit()
+    db.refresh(db_session)
+
+    return db_session
