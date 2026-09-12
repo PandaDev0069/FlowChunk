@@ -1,11 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.auth import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
     get_current_user,
     verify_password,
@@ -44,7 +45,7 @@ def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
 
 
 @router.post("/login", response_model=Token)
-def login(user_in: LoginRequest, db: DbSessionDep) -> Token:
+def login(user_in: LoginRequest, db: DbSessionDep, response: Response) -> Token:
     stmt = select(UserOrm).where(UserOrm.email == user_in.email)
     user = db.scalars(stmt).one_or_none()
     if (
@@ -59,6 +60,14 @@ def login(user_in: LoginRequest, db: DbSessionDep) -> Token:
 
     access_token = create_access_token(
         data={"sub": str(user.id), "email": user.email, "username": user.username}
+    )
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # Set to True in production with HTTPS
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
     return Token(access_token=access_token, token_type="bearer")
 
