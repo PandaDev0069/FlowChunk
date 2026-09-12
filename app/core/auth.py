@@ -2,8 +2,7 @@ import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID as UUIDClass
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, Request, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy import select
@@ -27,9 +26,6 @@ pwd_context = CryptContext(
     schemes=["pbkdf2_sha256", "bcrypt"],
     deprecated="auto",
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
-# use module-level dependency singletons to avoid calling `Depends()`
-oauth2_scheme_dep = Depends(oauth2_scheme)
 get_db_dep = Depends(get_db)
 
 # --- Password hashing ---
@@ -82,30 +78,40 @@ def decode_access_token(token: str) -> TokenData:
 
 
 def get_current_user(
-    token: str = oauth2_scheme_dep,
+    request: Request,
     db: Session = get_db_dep,
 ) -> UserOrm:
+    token = request.cookies.get("access_token")
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
     token_data = decode_access_token(token)
 
     if token_data.user_id is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token data"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token data",
         )
 
     try:
         user_uuid = UUIDClass(str(token_data.user_id))
     except Exception as err:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user id in token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user id in token",
         ) from err
 
-    stmt = select(UserOrm).where(
-        UserOrm.id == user_uuid,
-    )
+    stmt = select(UserOrm).where(UserOrm.id == user_uuid)
     user = db.scalars(stmt).one_or_none()
+
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
         )
 
     return user
