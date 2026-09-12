@@ -15,10 +15,10 @@ from app.core.database import get_db
 from app.models.user import UserOrm
 from app.schemas.user import (
     LoginRequest,
+    LoginResponse,
     PrivateUserResponse,
     PublicUserResponse,
     RestoreUserResponse,
-    Token,
     UpdateUserRequest,
     UserCreate,
 )
@@ -44,8 +44,8 @@ def create_user(user_in: UserCreate, db: DbSessionDep) -> UserOrm:
     return new_user
 
 
-@router.post("/login", response_model=Token)
-def login(user_in: LoginRequest, db: DbSessionDep, response: Response) -> Token:
+@router.post("/login", response_model=LoginResponse)
+def login(user_in: LoginRequest, db: DbSessionDep, response: Response) -> LoginResponse:
     stmt = select(UserOrm).where(UserOrm.email == user_in.email)
     user = db.scalars(stmt).one_or_none()
     if (
@@ -69,7 +69,7 @@ def login(user_in: LoginRequest, db: DbSessionDep, response: Response) -> Token:
         samesite="lax",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return LoginResponse(message="Login successful")
 
 
 @router.get("", response_model=PrivateUserResponse)
